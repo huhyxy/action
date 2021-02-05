@@ -1,3 +1,2 @@
-# Scalloped-Wool
-个人自用，请勿fork，star，watch
+百度极速版
 
