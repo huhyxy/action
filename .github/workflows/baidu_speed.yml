@@ -14,6 +14,9 @@ jobs:
         BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
         TZ: Asia/shanghai
     steps:
+      name: 获取 Scripts
+        run: |
+          git clone -b master https://github.com/GoodHolidays/Scripts.git ~/Scripts
       - name: Checkout
         uses: actions/checkout@v2
       - name: Use Node.js 12.x
@@ -22,11 +25,13 @@ jobs:
           node-version: 12.x
       - name: npm install
         run: |
+          cd ~/Scripts
           npm install
       - name: '运行 【百度极速】'
         if: env.BAIDU_COOKIE
         run: |
-          node baidu_speed.js
+          cd ~/Scripts
+          node Task/baidu_speed.js
         env:
           BAIDU_CASH: ${{ secrets.BAIDU_CASH }}
           BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
