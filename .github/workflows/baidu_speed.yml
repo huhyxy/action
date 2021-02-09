@@ -14,9 +14,9 @@ jobs:
         BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
         TZ: Asia/shanghai
     steps:
-      name: 获取 Scripts
-      run: |
-        git clone -b master https://github.com/GoodHolidays/Scripts.git ~/Scripts
+      - name: 获取 Scripts
+        run: |
+          git clone -b master https://github.com/GoodHolidays/Scripts.git ~/Scripts
       - name: Checkout
         uses: actions/checkout@v2
       - name: Use Node.js 12.x
