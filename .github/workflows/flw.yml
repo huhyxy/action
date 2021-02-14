@@ -22,7 +22,7 @@ jobs:
         FL_DHCASH: ${{ secrets.FL_DHCASH }}//签到活动兑换
     steps:
       - name: Checkout
-        run: |
+        uses: actions/checkout@v1 
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
