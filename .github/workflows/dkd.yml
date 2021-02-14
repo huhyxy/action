@@ -1,9 +1,9 @@
+name: dkd
 
-name: 百度极速版
 on:
   workflow_dispatch:
   schedule:
-     - cron: '*/30 0-15 * * * '
+     - cron: '13 0-11 * * *'
   watch:
     types: started
 jobs:
@@ -11,11 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
-        BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
+       #DKD_URL: ${{ secrets.DKD_URL }}
+        DKD_HD: ${{ secrets.DKD_HD }}
+        DKD_BD: ${{ secrets.DKD_BD }}
+       #DKD_TX_URL: ${{ secrets.DKD_TX_URL }}
+        DKD_TX_HD: ${{ secrets.DKD_TX_HD }}
+        DKD_TX_BD: ${{ secrets.DKD_TX_BD }}
         TZ: Asia/shanghai
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
+        
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
@@ -23,13 +29,11 @@ jobs:
       - name: npm install
         run: |
           npm install
-      - name: '运行 【百度极速】'
-        if: env.BAIDU_COOKIE
+      - name: '运行 【DKD】'
+        if: env.DKD_HD
         run: |
-          node Task/baidu_speed.js
+          node Task/dkd.js
         env:
-          BAIDU_CASH: ${{ secrets.BAIDU_CASH }}
-          BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
           PUSH_KEY: ${{ secrets.PUSH_KEY }}
           BARK_PUSH: ${{ secrets.BARK_PUSH }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}

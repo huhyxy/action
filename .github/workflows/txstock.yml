@@ -1,9 +1,9 @@
+name: txstock
 
-name: 百度极速版
 on:
   workflow_dispatch:
   schedule:
-     - cron: '*/30 0-15 * * * '
+     - cron: '39 1 * * *'
   watch:
     types: started
 jobs:
@@ -11,11 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
-        BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
+        TX_USERHEADER: ${{ secrets.TX_USERHEADER }}
+        TX_USERKEY: ${{ secrets.TX_USERKEY }}        
+        TX_SIGNHEADER: ${{ secrets.TX_SIGNHEADER }}
+        TX_SIGNKEY: ${{ secrets.TX_SIGNKEY }}        
+        TX_TASKHEADER: ${{ secrets.TX_TASKHEADER }}        
+        TX_TASKKEY: ${{ secrets.TX_TASKKEY }}        
+        TX_WXTASKKEY: ${{ secrets.TX_WXTASKKEY }}        
         TZ: Asia/shanghai
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
+        
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
@@ -23,13 +30,11 @@ jobs:
       - name: npm install
         run: |
           npm install
-      - name: '运行 【百度极速】'
-        if: env.BAIDU_COOKIE
+      - name: '运行 【txstock】'
+        if: env.TX_TASKHEADER
         run: |
-          node Task/baidu_speed.js
+          node Task/txstock.js
         env:
-          BAIDU_CASH: ${{ secrets.BAIDU_CASH }}
-          BAIDU_COOKIE: ${{ secrets.BAIDU_COOKIE }}
           PUSH_KEY: ${{ secrets.PUSH_KEY }}
           BARK_PUSH: ${{ secrets.BARK_PUSH }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
