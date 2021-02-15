@@ -1,4 +1,4 @@
-name: txstock
+name: 腾讯自选股
 
 on:
   workflow_dispatch:

@@ -1,5 +1,5 @@
 
-name: jrtt
+name: 今日头条极速版
 
 on:
   workflow_dispatch:
