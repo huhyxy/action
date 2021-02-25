@@ -100,7 +100,7 @@ if ($.isNode() && process.env.ZM_zhimabody) {
     ) {
         middlezhimabody = process.env.ZM_zhimabody.split(COOKIES_SPLIT);
     } else {
-        middlezhimabody = process.env.ZM_zhimabody.split();
+        middlezhimabody = process.env.ZM_zhimabody;
     }
 
     if (
