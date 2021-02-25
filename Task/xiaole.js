@@ -1,60 +1,35 @@
 /* ziye 
-
 github地址 https://github.com/ziye12
 TG频道地址  https://t.me/ziyescript
 TG交流群   https://t.me/joinchat/AAAAAE7XHm-q1-7Np-tF3g
 boxjs链接  https://raw.githubusercontent.com/ziye12/JavaScript/main/Task/ziye.boxjs.json
-
 转载请备注个名字，谢谢
-
-
 1.18 修复兑换错误
 1.20 调整为打卡满10次且大于等于0.3进行兑换
 1.25 调整签到时间为12到13点之间
-1.26 调整外部推送
-
+2.23 调整随机延时时长
 ⚠️小乐
 可以签到 10次 共0.3
 打卡  符合规则可以打卡
-
-
 一共1个位置 1个ck  2条 Secrets 
 多账号换行
-
-
 第一步 微信扫码 https://raw.githubusercontent.com/ziye12/JavaScript/main/Task/xiaole.png  获取授权
-
 第二步 
 开代理软件，添加主机名 重写 ，然后点 我的 获取url header
-
-
 变量对应关系👇
 xiaoleurlVal     👉  XL_URL
 xiaoleheaderVal  👉  XL_HEADER
-
-
-
 ⚠️主机名以及重写👇
-
 hostname=minapp.xqrobot.net,
-
 ############## 圈x
 #小乐获取ck
 https:\/\/minapp\.xqrobot\.net\/* url script-request-header https://raw.githubusercontent.com/ziye12/JavaScript/main/Task/xiaole.js
-
 ############## loon
-
 #小乐获取ck
 http-request https:\/\/minapp\.xqrobot\.net\/* script-path=https://raw.githubusercontent.com/ziye12/JavaScript/main/Task/xiaole.js, requires-header=true, tag=小乐获取ck
-
 ############## surge
-
 #小乐获取ck
 小乐获取ck = type=http-request,pattern=https:\/\/minapp\.xqrobot\.net\/*,script-path=https://raw.githubusercontent.com/ziye12/JavaScript/main/Task/xiaole.js, 
-
-
-
-
 */
 
 
@@ -212,8 +187,8 @@ if (!Length) {
   xiaoleheaderVal = xiaoleheaderArr[i];  
   }
 //随机时间
-do out = Math.floor(Math.random()*30);
-        while( out < 15 )
+do out = Math.floor(Math.random()*50);
+        while( out < 25 )
   O = (`${$.name + (i + 1)}🔔`);
   await console.log(`-------------------------\n\n🔔开始运行【${$.name+(i+1)}】`)      
       await coin();//账户信息
@@ -233,6 +208,7 @@ await clock();//打卡
 
 await index();//打卡信息  
 	  if (nowTimes.getHours() >= 8 &&$.integral.info &&$.clocklog.info.log.length==10 && money >=0.3){
+    await $.wait(out*500);
 	  await exchange();//兑换
 	  }
   }
