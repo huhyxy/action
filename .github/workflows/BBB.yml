@@ -23,7 +23,6 @@ jobs:
       - name: npm install
         if: env.BBB_bububaoTOKEN
         run: |
-          cd ~/JavaScript
           npm install
       - name: '运行 【小乐】'
         if: env.BBB_bububaoTOKEN
