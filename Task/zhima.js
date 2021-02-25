@@ -109,7 +109,7 @@ if ($.isNode() && process.env.ZM_zhimabody) {
     ) {
         middlezhimatxbody = process.env.ZM_zhimatxbody.split(COOKIES_SPLIT);
     } else {
-        middlezhimatxbody = process.env.ZM_zhimatxbody.split();
+        middlezhimatxbody = process.env.ZM_zhimatxbody;
     }
 }
 if (COOKIE.zhimabodyVal) {
