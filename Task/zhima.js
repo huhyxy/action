@@ -1,79 +1,94 @@
 /* ziye 
-
 github地址 https://github.com/ziye11
 TG频道地址  https://t.me/ziyescript
 TG交流群   https://t.me/joinchat/AAAAAE7XHm-q1-7Np-tF3g
 boxjs链接  https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/ziye.boxjs.json
-
 转载请备注个名字，谢谢
 
-
-1.18 修复兑换错误
-1.20 调整为打卡满10次且大于等于0.3进行兑换
-1.25 调整签到时间为12到13点之间
-2.23 调整随机延时时长
-3.5 增加ck失效提醒，注意，微信一段时间不在登陆状态，ck就会失效
-
-⚠️小乐
-可以签到 10次 共0.3
-打卡  符合规则可以打卡
+⚠️芝嫲视频
 
 
-一共1个位置 1个ck  2条 Secrets 
+2.13 制作
+2.15 修复刷新问题,修复部分问题,点夺宝获取ck
+2.24 增加自动提现，需要自行获取对应数值的body，并填写CASH变量
+2.24-2 修复刷新错误，务必更新
+2.25 修复版本更新带来的晶石收取问题
+
+⚠️一共1个位置 1个ck  👉 1条 Secrets
 多账号换行
 
+点击 https://h5.sxsjyzm.com/sesameH5/public/sesameLogin/register.html?onlyid=612545154 下载APP
 
-第一步 微信扫码 https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.png  获取授权
+或者商店搜索 芝嫲视频 邀请码612545154
 
-第二步 
-开代理软件，添加主机名 重写 ，然后点 我的 获取url header
+谢谢支持
 
 
-变量对应关系👇
-xiaoleurlVal     👉  XL_URL
-xiaoleheaderVal  👉  XL_HEADER
+第一步 添加  hostname=api.sxsjyzm.com,
+
+第二步 添加body重写 
+
+点击夺宝   获取body
+
+
+zhimabodyVal 👉ZM_zhimabody
+
+CASH 👉ZM_CASH   可设置0.3 0.5 1 5 10 30 50 100 等等，设置完后自行获取对应body
 
 
 
 ⚠️主机名以及重写👇
 
-hostname=minapp.xqrobot.net,
+时间建议设置一小时一次   如 0 * * * *
+
+hostname=api.sxsjyzm.com,
+
+
 
 ############## 圈x
-#小乐获取ck
-https:\/\/minapp\.xqrobot\.net\/* url script-request-header https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.js
+
+#芝嫲视频获取body
+https:\/\/api\.sxsjyzm\.com\/* url script-request-body https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/zhima.js   
 
 ############## loon
-
-#小乐获取ck
-http-request https:\/\/minapp\.xqrobot\.net\/* script-path=https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.js, requires-header=true, tag=小乐获取ck
+#芝嫲视频获取body
+http-request https:\/\/api\.sxsjyzm\.com\/* script-path=https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/zhima.js,requires-body=true, tag=芝嫲视频获取body
 
 ############## surge
 
-#小乐获取ck
-小乐获取ck = type=http-request,pattern=https:\/\/minapp\.xqrobot\.net\/*,script-path=https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.js, 
+#芝嫲视频获取body
+芝嫲视频获取body = type=http-request,pattern=https:\/\/api\.sxsjyzm\.com\/*,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/zhima.js 
 
+
+
+ 
 */
-const $ = Env("小乐");
-$.idx = ($.idx = ($.getval('xlSuffix') || '1') - 1) > 0 ? ($.idx + 1 + '') : ''; // 账号扩展字符
+
+
+
+
+const $ = Env("芝嫲视频");
+$.idx = ($.idx = ($.getval('zhimaSuffix') || '1') - 1) > 0 ? ($.idx + 1 + '') : ''; // 账号扩展字符
 const notify = $.isNode() ? require("./sendNotify") : ``;
-const COOKIE = $.isNode() ? require("./xiaoleCOOKIE") : ``;
+const COOKIE = $.isNode() ? require("./zhimaCOOKIE") : ``;
 const logs = 0; // 0为关闭日志，1为开启
 const notifyttt = 1 // 0为关闭外部推送，1为12 23 点外部推送
 const notifyInterval = 2; // 0为关闭通知，1为所有通知，2为12 23 点通知  ， 3为 6 12 18 23 点通知 
+$.message = '', COOKIES_SPLIT = '', CASH = '', ddtime = '';
+const zhimabodyArr = [];
+let zhimabodyVal = ``;
+let middlezhimabody = [];
 
-let money;
-$.message = '', $.messagesss = '', $.index = '', $.clocklog = '', COOKIES_SPLIT = '';
+const zhimatxbodyArr = [];
+let zhimatxbodyVal = ``;
+let middlezhimatxbody = [];
 
-const xiaoleurlArr = [];
-let xiaoleurlVal = ``;
-const xiaoleheaderArr = [];
-let xiaoleheaderVal = ``;
-let middlexiaoleURL = [];
-let middlexiaoleHEADER = [];
+if ($.isNode()) {
+    // 没有设置 ZM_CASH 则默认为 0 不提现
+    CASH = process.env.ZM_CASH || 0;
+}
 
-
-if ($.isNode() && process.env.XL_URL) {
+if ($.isNode() && process.env.ZM_zhimabody) {
     COOKIES_SPLIT = process.env.COOKIES_SPLIT || "\n";
     console.log(
         `============ cookies分隔符为：${JSON.stringify(
@@ -81,75 +96,86 @@ if ($.isNode() && process.env.XL_URL) {
     )} =============\n`
     );
     if (
-        process.env.XL_URL &&
-        process.env.XL_URL.indexOf(COOKIES_SPLIT) > -1
+        process.env.ZM_zhimabody &&
+        process.env.ZM_zhimabody.indexOf(COOKIES_SPLIT) > -1
     ) {
-        middlexiaoleURL = process.env.XL_URL.split(COOKIES_SPLIT);
+        middlezhimabody = process.env.ZM_zhimabody.split(COOKIES_SPLIT);
     } else {
-        middlexiaoleURL = process.env.XL_URL.split();
+        middlezhimabody = process.env.ZM_zhimabody.split();
     }
+
     if (
-        process.env.XL_HEADER &&
-        process.env.XL_HEADER.indexOf(COOKIES_SPLIT) > -1
+        process.env.ZM_zhimatxbody &&
+        process.env.ZM_zhimatxbody.indexOf(COOKIES_SPLIT) > -1
     ) {
-        middlexiaoleHEADER = process.env.XL_HEADER.split(COOKIES_SPLIT);
+        middlezhimatxbody = process.env.ZM_zhimatxbody.split(COOKIES_SPLIT);
     } else {
-        middlexiaoleHEADER = process.env.XL_HEADER.split();
+        middlezhimatxbody = process.env.ZM_zhimatxbody.split();
     }
 }
-if (COOKIE.xiaoleurlVal) {
-    XL_COOKIES = {
-        "xiaoleurlVal": COOKIE.xiaoleurlVal.split('\n'),
-        "xiaoleheaderVal": COOKIE.xiaoleheaderVal.split('\n'),
+if (COOKIE.zhimabodyVal) {
+    ZM_COOKIES = {
+        "zhimabodyVal": COOKIE.zhimabodyVal.split('\n'),
+        "zhimatxbodyVal": COOKIE.zhimatxbodyVal.split('\n'),
     }
-    Length = XL_COOKIES.xiaoleurlVal.length;
+    Length = ZM_COOKIES.zhimabodyVal.length;
 }
-if (!COOKIE.xiaoleurlVal) {
+if (!COOKIE.zhimabodyVal) {
     if ($.isNode()) {
-        Object.keys(middlexiaoleURL).forEach((item) => {
-            if (middlexiaoleURL[item]) {
-                xiaoleurlArr.push(middlexiaoleURL[item]);
+        Object.keys(middlezhimabody).forEach((item) => {
+            if (middlezhimabody[item]) {
+                zhimabodyArr.push(middlezhimabody[item]);
+                zhimatxbodyArr.push(middlezhimatxbody[item]);
             }
         });
-        Object.keys(middlexiaoleHEADER).forEach((item) => {
-            if (middlexiaoleHEADER[item]) {
-                xiaoleheaderArr.push(middlexiaoleHEADER[item]);
-            }
-        });
+
     } else {
-        xiaoleurlArr.push($.getdata("xiaoleurl"));
-        xiaoleheaderArr.push($.getdata("xiaolehd"));
+        zhimabodyArr.push($.getdata("zhimabody"));
+        zhimatxbodyArr.push($.getdata("zhimatxbody"));
         // 根据boxjs中设置的额外账号数，添加存在的账号数据进行任务处理
-        let xlCount = ($.getval('xlCount') || '1') - 0;
-        for (let i = 2; i <= xlCount; i++) {
-            if ($.getdata(`xiaoleurl${i}`)) {
-                xiaoleurlArr.push($.getdata(`xiaoleurl${i}`));
-                xiaoleheaderArr.push($.getdata(`xiaolehd${i}`));
+        if ("zhimaCASH") {
+            CASH = $.getval("zhimaCASH") || '0';
+        }
+        let zhimaCount = ($.getval('zhimaCount') || '1') - 0;
+        for (let i = 2; i <= zhimaCount; i++) {
+            if ($.getdata(`zhimabody${i}`)) {
+                zhimabodyArr.push($.getdata(`zhimabody${i}`));
+                zhimatxbodyArr.push($.getdata(`zhimatxbody${i}`));
+
+
             }
         }
     }
-    if (xiaoleurlArr == '') {
+
+
+    if (zhimabodyArr == '') {
         Length = 0
-    } else Length = xiaoleurlArr.length
+    } else Length = zhimabodyArr.length
+
 
 }
 
+
 function GetCookie() {
-    //签到
-    if ($request && $request.url.indexOf("/user.php?mod=index&") >= 0) {
-        const xiaoleurlVal = $request.url;
-        if (xiaoleurlVal) $.setdata(xiaoleurlVal, "xiaoleurl" + $.idx);
+    if ($request && $request.url.indexOf("loot") >= 0 && $request.url.indexOf("index") >= 0) {
+        const zhimabodyVal = $request.body;
+        if (zhimabodyVal) $.setdata(zhimabodyVal, "zhimabody" + $.idx);
         $.log(
-            `[${$.name + $.idx}] 获取url✅: 成功,xiaoleurlVal: ${xiaoleurlVal}`
+            `[${$.name + $.idx}] 获取zhimabodyVal✅: 成功,zhimabodyVal: ${zhimabodyVal}`
         );
-        $.msg($.name + $.idx, `获取url: 成功🎉`, ``);
-        const xiaoleheaderVal = JSON.stringify($request.headers);
-        if (xiaoleheaderVal) $.setdata(xiaoleheaderVal, "xiaolehd" + $.idx);
-        $.log(
-            `[${$.name + $.idx}] 获取header✅: 成功,xiaoleheaderVal: ${xiaoleheaderVal}`
-        );
-        $.msg($.name + $.idx, `获取header: 成功🎉`, ``);
+        $.msg($.name + $.idx, `获取zhimabodyVal: 成功🎉`, ``);
     }
+
+    if ($request && $request.url.indexOf("userWxCashSubmit") >= 0) {
+        const zhimatxbodyVal = $request.body;
+        if (zhimatxbodyVal) $.setdata(zhimatxbodyVal, "zhimatxbody" + $.idx);
+        $.log(
+            `[${$.name + $.idx}] 获取zhimatxbodyVal✅: 成功,zhimatxbodyVal: ${zhimatxbodyVal}`
+        );
+        $.msg($.name + $.idx, `获取zhimatxbodyVal: 成功🎉`, ``);
+
+    }
+
 }
 console.log(
     `================== 脚本执行 - 北京时间(UTC+8)：${new Date(
@@ -161,6 +187,8 @@ console.log(
 console.log(
     `============ 共 ${Length} 个${$.name}账号=============\n`
 );
+
+
 //时间
 nowTimes = new Date(
     new Date().getTime() +
@@ -173,7 +201,7 @@ M = (nowTimes.getMonth() + 1 < 10 ? '0' + (nowTimes.getMonth() + 1) : nowTimes.g
 D = (nowTimes.getDate() < 10 ? '0' + (nowTimes.getDate()) : nowTimes.getDate());
 ddtime = Y + M + D;
 console.log(ddtime)
-//当前时间戳
+
 function tts(inputTime) {
     if ($.isNode()) {
         TTS = Math.round(new Date().getTime() +
@@ -182,6 +210,9 @@ function tts(inputTime) {
         new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000).toString();
     return TTS;
 };
+
+
+
 //当前10位时间戳
 function ts(inputTime) {
     if ($.isNode()) {
@@ -202,9 +233,12 @@ function daytime(inputTime) {
 };
 //时间戳格式化日期
 function time(inputTime) {
+
     if ($.isNode()) {
         var date = new Date(inputTime + 8 * 60 * 60 * 1000);
     } else var date = new Date(inputTime);
+
+
     Y = date.getFullYear() + '-';
     M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
     D = date.getDate() + ' ';
@@ -212,14 +246,6 @@ function time(inputTime) {
     m = date.getMinutes() + ':';
     s = date.getSeconds();
     return Y + M + D + h + m + s;
-};
-//日期格式化时间戳
-function timecs() {
-    if ($.isNode()) {
-        var date = new Date(newtime).getTime() - 8 * 60 * 60 * 1000
-    } else var date = new Date(newtime).getTime()
-
-    return date;
 };
 //随机udid 大写
 function udid() {
@@ -258,14 +284,14 @@ let isGetCookie = typeof $request !== 'undefined'
 if (isGetCookie) {
     GetCookie()
     $.done();
-
 } else {
     !(async () => {
         await all();
+        //await $.wait(1000);
         await msgShow();
     })()
     .catch((e) => {
-            $.log('', `❌ ${O}, 失败! 原因: ${e}!`, '')
+            $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
         })
         .finally(() => {
             $.done();
@@ -275,52 +301,40 @@ async function all() {
     if (!Length) {
         $.msg(
             $.name,
-            '提示：⚠️请点击前往获取cookie\n',
-            'https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.png', {
-                "open-url": "https://raw.githubusercontent.com/ziye11/JavaScript/main/Task/xiaole.png"
+            '提示：⚠️请点击前往获取CK  https://h5.sxsjyzm.com/sesameH5/public/sesameLogin/register.html?onlyid=612545154\n',
+            'https://h5.sxsjyzm.com/sesameH5/public/sesameLogin/register.html?onlyid=612545154', {
+                "open-url": "https://h5.sxsjyzm.com/sesameH5/public/sesameLogin/register.html?onlyid=612545154"
             }
         );
         return;
     }
     for (let i = 0; i < Length; i++) {
-        if (COOKIE.xiaoleurlVal) {
-            xiaoleurlVal = XL_COOKIES.xiaoleurlVal[i];
-            xiaoleheaderVal = XL_COOKIES.xiaoleheaderVal[i];
+
+        if (COOKIE.zhimabodyVal) {
+            zhimabodyVal = ZM_COOKIES.zhimabodyVal[i];
+            zhimatxbodyVal = ZM_COOKIES.zhimatxbodyVal[i];
         }
-        if (!COOKIE.xiaoleurlVal) {
-            xiaoleurlVal = xiaoleurlArr[i];
-            xiaoleheaderVal = xiaoleheaderArr[i];
+        if (!COOKIE.zhimabodyVal) {
+            zhimabodyVal = zhimabodyArr[i];
+            zhimatxbodyVal = zhimatxbodyArr[i];
         }
-        //随机时间
-        do out = Math.floor(Math.random() * 50);
-        while (out < 25)
+
+
         O = (`${$.name + (i + 1)}🔔`);
         await console.log(`-------------------------\n\n🔔开始运行【${$.name+(i+1)}】`)
 
-        let cookie_is_live = await coin(); //账户信息
+
+        console.log(`\n${O}\n========== 【${O}】 ==========\n`);
+        $.message += `\n${O}\n========== 【${O}】 ==========\n`;
+        let cookie_is_live = await zhimasx(); //运行
         if (!cookie_is_live) {
             continue;
         }
-
-        if (nowTimes.getHours() >= 12 && nowTimes.getHours() <= 13 && $.coin.info && $.coin.info.task_list[0].state == 0) {
-            await Sign(); //签到   
+        await zhima() //收取晶石       
+        if (nowTimes.getHours() === 17 && CASH >= 0.3) {
+            await zhimatx(); //提现
         }
-
-        await integral(); //兑换信息
-        await clocklog(); //打卡记录 
-        if (nowTimes.getHours() >= 8 && $.clocklog.info && !$.clocklog.info.log.length) {
-            await clock()
-        }; //首次打卡
-        if (nowTimes.getHours() >= 8 && $.clocklog.info.log.length && $.clocklog.info.log.length <= 9) {
-            console.log('随机延迟' + out + '秒')
-            await clock(); //打卡
-        }
-
-        await index(); //打卡信息  
-        if (nowTimes.getHours() >= 8 && $.integral.info && $.clocklog.info.log.length == 10 && money >= 0.3) {
-            await $.wait(out * 500);
-            await exchange(); //兑换
-        }
+        await zhimasx(); //刷新
     }
 }
 //通知
@@ -338,48 +352,53 @@ function msgShow() {
         if (notifyInterval == 3 && (nowTimes.getHours() === 6 || nowTimes.getHours() === 12 || nowTimes.getHours() === 18 || nowTimes.getHours() === 23) && (nowTimes.getMinutes() >= 0 && nowTimes.getMinutes() <= 10)) {
             $.msg($.name, ``, $.message);
         }
-        if (notifyttt == 1 && $.isNode() && (nowTimes.getHours() === 12 || nowTimes.getHours() === 23) && (nowTimes.getMinutes() >= 0 && nowTimes.getMinutes() <= 59))
-            await notify.sendNotify($.name, $.messagesss);
+        if (notifyttt == 1 && $.isNode() && (nowTimes.getHours() === 12 || nowTimes.getHours() === 23) && (nowTimes.getMinutes() >= 0 && nowTimes.getMinutes() <= 10))
+            await notify.sendNotify($.name, $.message);
         resolve()
     })
 }
-//账户信息  
-function coin(timeout = 0) {
+
+
+
+//zhimasx
+function zhimasx(timeout = 0) {
     return new Promise((resolve) => {
         setTimeout(() => {
+
+
             let url = {
-                url: xiaoleurlVal,
-                headers: JSON.parse(xiaoleheaderVal),
+                url: `https://api.sxsjyzm.com/api2/loot/index`,
+                headers: {
+                    'Accept': `*/*`,
+                    'wToken': ``,
+                    'Accept-Encoding': `gzip, deflate, br`,
+                    'Content-Type': `application/x-www-form-urlencoded`,
+                    'Connection': `keep-alive`,
+                    'Host': `api.sxsjyzm.com`,
+                    'User-Agent': `APP/5.0 CFNetwork/1206 Darwin/20.1.0`,
+                    'Accept-Language': `zh-cn`
+                },
+                body: zhimabodyVal,
             }
             $.post(url, async (err, resp, data) => {
                 try {
-                    if (logs) $.log(`${O}, 账户信息🚩: ${data}`);
-                    $.coin = JSON.parse(data);
-                    if ($.coin && $.coin.info && $.coin.info.user_name) {
-                        $.message += `\n${O}`;
-                        $.message += `\n========== 【${$.coin.info.user_name}】 ==========\n` +
-                            '【现金余额】：' + $.coin.info.user_money + '元' + '\n' +
-                            '【今日收益】：' + $.coin.info.jiang_day1 + '元' + '\n' +
-                            '【本月收益】：' + $.coin.info.jiang_month1 + '元' + '\n' +
-                            '【签到信息】：' + $.coin.info.task_list[0].name + '\n' +
-                            '【签到奖励】：' + $.coin.info.task_list[0].money + '\n' +
-                            '【签到收益】：' + $.coin.info.task_list[0].desc + '\n' +
-                            '【签到任务】：' + $.coin.info.task_list[0].btn + '\n' +
-                            '【邀请信息】：' + $.coin.info.task_list[1].name + '\n' +
-                            '【邀请奖励】：' + $.coin.info.task_list[1].money + '\n' +
-                            '【邀请收益】：' + $.coin.info.task_list[1].desc + '\n'
+                    if (logs) $.log(`${O}, 芝嫲刷新🚩: ${data}`);
 
-                        $.messagesss += `\n========== 【${$.coin.info.user_name}】 ==========\n` +
-                            '【现金余额】：' + $.coin.info.user_money + '元' + '\n' +
-                            '【签到任务】：' + $.coin.info.task_list[0].btn + '\n'
+                    $.zhimasx = JSON.parse(data);
 
-                        resolve(true);
-                    } else {
+                    if ($.zhimasx.code == 200) {
+
+                        console.log(`【芝嫲刷新】:刷新成功\n`)
+                        $.message += `【芝嫲刷新】:刷新成功\n`
+                        resolve(true)
+
+                    }
+                    if ($.zhimasx.code == 2970) {
                         $.msg(O, time(Number(tts())) + "❌❌❌COOKIE失效");
                         if ($.isNode()) {
                             notify.sendNotify(O, time(Number(tts())) + "❌❌❌COOKIE失效");
                         }
-                        resolve(false);
+                        resolve(false)
                     }
 
                 } catch (e) {
@@ -391,86 +410,100 @@ function coin(timeout = 0) {
         }, timeout)
     })
 }
-//签到
-function Sign(timeout = 0) {
+
+
+//zhima
+function zhima(timeout = 0) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            let body = `pesubmit=`;
-            xiaolesignheader = xiaoleheaderVal.replace(/json/g, `x-www-form-urlencoded`);
+
+
             let url = {
-                url: xiaoleurlVal.replace(/mod=index/g, `mod=sign`),
-                headers: JSON.parse(xiaolesignheader),
-                body: body,
+                url: `https://api.sxsjyzm.com/api2/loot/supquickgetloot`,
+                headers: {
+                    'Accept': `*/*`,
+                    'wToken': ``,
+                    'Accept-Encoding': `gzip, deflate, br`,
+                    'Content-Type': `application/x-www-form-urlencoded`,
+                    'Connection': `keep-alive`,
+                    'Host': `api.sxsjyzm.com`,
+                    'User-Agent': `APP/5.0 CFNetwork/1206 Darwin/20.1.0`,
+                    'Accept-Language': `zh-cn`
+                },
+                body: zhimabodyVal,
             }
             $.post(url, async (err, resp, data) => {
                 try {
-                    if (logs) $.log(`${O}, 签到🚩: ${data}`);
-                    $.Sign = JSON.parse(data);
-                    if ($.Sign.result == true) {
-                        $.message += '【签到成功】:' + $.Sign.show + '\n'
-                        $.messagesss += '【签到成功】:' + $.Sign.show + '\n'
+                    if (logs) $.log(`${O}, 芝嫲收晶石🚩: ${data}`);
+
+                    $.zhima = JSON.parse(data);
+
+
+                    if ($.zhima.code == 200) {
+
+                        console.log(`【晶石收取】:${time(Number(tts()))}领取晶石成功,冷却3小时\n`)
+                        $.message += `【晶石收取】:${time(Number(tts()))}领取晶石成功,冷却3小时\n`
+
+
                     }
-                    if ($.Sign.result == false) {
-                        $.message += '【签到失败】:' + $.Sign.show + '\n'
+
+
+
+                    if ($.zhima.code == 1002) {
+
+                        console.log(`【晶石收取】:${$.zhima.mess},间隔3小时才能收取\n`)
+                        $.message += `【晶石收取】:${$.zhima.mess},间隔3小时才能收取\n`
+
                     }
-                } catch (e) {
-                    $.logErr(e, resp);
-                } finally {
-                    resolve()
-                }
-            })
-        }, timeout)
-    })
-}
 
-//兑换信息
-function integral(timeout = 0) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            let url = {
-                url: xiaoleurlVal.replace(`user.php?mod=index`, `daka.php?mod=my&act=integral`),
-                headers: JSON.parse(xiaoleheaderVal),
-            }
-            $.get(url, async (err, resp, data) => {
-                try {
-                    if (logs) $.log(`${O}, 兑换中心🚩: ${data}`);
-                    $.integral = JSON.parse(data);
-                    if ($.integral.result == true) {
-                        $.mibi = $.integral.info.mibi
-                        $.money = $.integral.info.config.currency_money
-                        money = $.mibi * $.money
 
-                        $.message +=
-                            '【米币价值】：' + $.money + '元' + '\n' +
-                            '【米币余额】：' + ($.mibi * $.money).toFixed(2) + '元' + '\n'
+                    if ($.zhima.code == 156) {
+
+                        console.log(`【晶石收取】:${$.zhima.mess}\n`)
+                        $.message += `【晶石收取】:${$.zhima.mess}\n`
+
                     }
+
+
                 } catch (e) {
                     $.logErr(e, resp);
                 } finally {
                     resolve()
                 }
             })
+
         }, timeout)
     })
 }
 
-//打卡记录
-function clocklog(timeout = 0) {
+
+//zhimatx
+function zhimatx(timeout = 0) {
+
     return new Promise((resolve) => {
+
         setTimeout(() => {
             let url = {
-                url: xiaoleurlVal.replace(`user.php?mod=index`, `daka.php?mod=clock&act=log&level=1&p=1&today=1`),
-                headers: JSON.parse(xiaoleheaderVal),
+                url: `https://api.sxsjyzm.com/api2/loot/userWxCashSubmit`,
+                headers: {
+                    'Accept': `*/*`,
+                    'wToken': ``,
+                    'Accept-Encoding': `gzip, deflate, br`,
+                    'Content-Type': `application/x-www-form-urlencoded`,
+                    'Connection': `keep-alive`,
+                    'Host': `api.sxsjyzm.com`,
+                    'User-Agent': `APP/5.0 CFNetwork/1206 Darwin/20.1.0`,
+                    'Accept-Language': `zh-cn`
+                },
+                body: zhimatxbodyVal,
             }
-            $.get(url, async (err, resp, data) => {
+            $.post(url, async (err, resp, data) => {
                 try {
-                    if (logs) $.log(`${O}, 签到🚩: ${data}`);
-                    $.clocklog = JSON.parse(data);
-                    if ($.clocklog.result == true && $.clocklog.info.log.length) {
-                        let v = $.clocklog.info.log.length - 1
-                        let dktime = $.clocklog.info.log[v].created
-                        $.message += '【上次打卡】:' + dktime + '\n';
-                    }
+                    if (logs) $.log(`${O}, 芝嫲提现🚩: ${data}`);
+                    $.zhimatx = JSON.parse(data);
+
+                    console.log(`【芝嫲提现${CASH}元】:${$.zhimatx.mess}\n`)
+                    $.message += `【芝嫲提现${CASH}元】:${$.zhimatx.mess}\n`
                 } catch (e) {
                     $.logErr(e, resp);
                 } finally {
@@ -480,88 +513,6 @@ function clocklog(timeout = 0) {
         }, timeout)
     })
 }
-
-//打卡
-function clock(timeout = out * 1000) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            let url = {
-                url: xiaoleurlVal.replace(`user.php?mod=index`, `daka.php?mod=clock&act=sign`),
-                headers: JSON.parse(xiaoleheaderVal),
-            }
-            $.get(url, async (err, resp, data) => {
-                try {
-                    if (logs) $.log(`${O}, 打卡🚩: ${data}`);
-                    $.message += '【打卡成功】:打卡次数+1\n'
-                } catch (e) {
-                    $.logErr(e, resp);
-                } finally {
-                    resolve()
-                }
-            })
-        }, timeout)
-    })
-}
-
-//打卡信息  
-function index(timeout = 0) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            let url = {
-                url: xiaoleurlVal.replace(`user.php?mod=index`, `daka.php?mod=index&act=today`),
-                headers: JSON.parse(xiaoleheaderVal),
-            }
-            $.get(url, async (err, resp, data) => {
-                try {
-                    if (logs) $.log(`${O}, 打卡信息🚩: ${data}`);
-                    $.index = JSON.parse(data);
-                    $.jrdk = $.index.info.today.clock
-                    $.jrcurrency = $.index.info.today.currency
-                    $.message +=
-                        '【今日打卡】：' + $.jrdk + '次' + '\n' +
-                        '【今日收益】：' + ($.jrcurrency * $.money).toFixed(2) + '元' + '\n'
-                    $.messagesss +=
-                        '【今日打卡】：' + $.jrdk + '次' + '\n' +
-                        '【今日收益】：' + ($.jrcurrency * $.money).toFixed(2) + '元' + '\n'
-
-                } catch (e) {
-                    $.logErr(e, resp);
-                } finally {
-                    resolve()
-                }
-            })
-        }, timeout)
-    })
-}
-
-
-
-
-//兑换
-function exchange(timeout = 0) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            let url = {
-                url: xiaoleurlVal.replace(`user.php?mod=index`, `daka.php?mod=shop&act=exchange&money=${money}&currency=${$.mibi}`),
-                headers: JSON.parse(xiaoleheaderVal),
-            }
-            $.get(url, async (err, resp, data) => {
-                try {
-                    if (logs) $.log(`${O}, 兑换🚩: ${data}`);
-                    $.message += '【兑换成功】:' + money + '元\n'
-                    $.messagesss += '【兑换成功】:' + money + '元\n'
-                } catch (e) {
-                    $.logErr(e, resp);
-                } finally {
-                    resolve()
-                }
-            })
-        }, timeout)
-    })
-}
-
-
-
 
 
 // prettier-ignore
