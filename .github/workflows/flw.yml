@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
+        FL_flwydBODY: ${{ secrets.FL_flwydBODY }}
         FL_flwURL: ${{ secrets.FL_flwURL }}
         FL_flwHEADER: ${{ secrets.FL_flwHEADER }}		
         FL_flwspBODY: ${{ secrets.FL_flwspBODY }}	
         FL_flwqwBODY: ${{ secrets.FL_flwqwBODY }}        
-        FL_CASH: ${{ secrets.FL_CASH }}//天天领现金提现
-        FL_DHCASH: ${{ secrets.FL_DHCASH }}//签到活动兑换
+        FL_DHCASH: ${{ secrets.FL_DHCASH }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1 
